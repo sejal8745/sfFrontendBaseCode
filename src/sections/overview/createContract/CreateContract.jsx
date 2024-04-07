@@ -14,7 +14,7 @@ export const CreateContract = () => {
   const methods = useForm();
   const { setValue, watch, reset } = methods;
   const { enqueueSnackbar } = useSnackbar();
-  const { orgId, templateId, recordId } = useParams();
+  const { launchId } = useParams();
   const [templateFields, setTemplateFields] = useState(null);
   const [templateVersionWarningFlag, setTemplateVersionWarningFlag] = useState(false);
   const [attributeValueMap, setAttributeValueMap] = useState({});
@@ -22,9 +22,7 @@ export const CreateContract = () => {
   const [openDrawer, setOpenDrawer] = useState(false);
   const [counterParties, setCounterParties] = useState([]);
 
-  console.log('orgId ----->', orgId);
-  console.log('templateId ----->', templateId);
-  console.log('recordId ------->', recordId);
+  console.log('launchId ----->', launchId);
 
   // function to fetch the template fields
   async function fetchTemplateFields(templateId) {
@@ -35,7 +33,7 @@ export const CreateContract = () => {
         {
           headers: {
             Authorization:
-              'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWU3ZjQ4MDI5Y2FhYjdlNGM4OGMyNDkiLCJmdWxsTmFtZSI6IlNhaGlsIEt1bWFyIiwiZW1haWwiOiJzYWhpbC5rdW1hckBpbnRlbGxvc3luYy5jb20iLCJvcmdJZCI6IjY1ZTdlNWY3MmU3Y2QzNGMzY2EyNTk2NCIsInJvbGUiOiJhZG1pbiIsImVkaXRvckFjY2VzcyI6IndyaXRlciIsImVudmlyb25tZW50IjoicGxheWdyb3VuZCIsImlhdCI6MTcxMjIxNDQ5OSwiZXhwIjoxNzEyMzAwODk5fQ.77_b2p6OwaUieuUxzE9nwXFc4vVeVT4XlBcpAtppF9A',
+              'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWU3ZjQ5NzI5Y2FhYjdlNGM4OGMyNGEiLCJmdWxsTmFtZSI6IlNlamFsIEdveWFsIiwiZW1haWwiOiJzZWphbC5nb3lhbEBpbnRlbGxvc3luYy5jb20iLCJvcmdJZCI6IjY1ZTdlNWY3MmU3Y2QzNGMzY2EyNTk2NCIsInJvbGUiOiJhZG1pbiIsImVkaXRvckFjY2VzcyI6IndyaXRlciIsImVudmlyb25tZW50IjoicGxheWdyb3VuZCIsImlhdCI6MTcxMjUxOTAyOSwiZXhwIjoxNzEyNjA1NDI5fQ.k9HGq5EBDA5ZfP4B7SV2aXS7nx0Zi0WxsAPZwPa2IwQ',
           },
         }
       );
@@ -67,7 +65,7 @@ export const CreateContract = () => {
       url: 'https://cmt-backend-playground.intellosync.com/api/v1/thirdPartyUsers/all/counterparties?type=IndependentIndividual',
       headers: {
         Authorization:
-          'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWU3ZjQ4MDI5Y2FhYjdlNGM4OGMyNDkiLCJmdWxsTmFtZSI6IlNhaGlsIEt1bWFyIiwiZW1haWwiOiJzYWhpbC5rdW1hckBpbnRlbGxvc3luYy5jb20iLCJvcmdJZCI6IjY1ZTdlNWY3MmU3Y2QzNGMzY2EyNTk2NCIsInJvbGUiOiJhZG1pbiIsImVkaXRvckFjY2VzcyI6IndyaXRlciIsImVudmlyb25tZW50IjoicGxheWdyb3VuZCIsImlhdCI6MTcxMjIxNDQ5OSwiZXhwIjoxNzEyMzAwODk5fQ.77_b2p6OwaUieuUxzE9nwXFc4vVeVT4XlBcpAtppF9A',
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWU3ZjQ5NzI5Y2FhYjdlNGM4OGMyNGEiLCJmdWxsTmFtZSI6IlNlamFsIEdveWFsIiwiZW1haWwiOiJzZWphbC5nb3lhbEBpbnRlbGxvc3luYy5jb20iLCJvcmdJZCI6IjY1ZTdlNWY3MmU3Y2QzNGMzY2EyNTk2NCIsInJvbGUiOiJhZG1pbiIsImVkaXRvckFjY2VzcyI6IndyaXRlciIsImVudmlyb25tZW50IjoicGxheWdyb3VuZCIsImlhdCI6MTcxMjUxOTAyOSwiZXhwIjoxNzEyNjA1NDI5fQ.k9HGq5EBDA5ZfP4B7SV2aXS7nx0Zi0WxsAPZwPa2IwQ',
       },
     };
 
@@ -117,18 +115,33 @@ export const CreateContract = () => {
 
   //fucntion jisko id VS type kii mapping denge aur wo fieldDetails wala array fill krega
 
+  const fetchLaunchForm = async () => {
+    try {
+      const fetchLaunchFormResponse = await axios.get(
+        `http://localhost:3015/api/v1/launchForm/${launchId}`
+      );
+      return fetchLaunchFormResponse;
+    } catch (error) {
+      console.log('error in fetching launch form from the function', error);
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
-      const getTemplateFields = async () => {
+      const getLaunchForm = async () => {
         try {
+          const launchForm = await fetchLaunchForm(launchId);
+          const templateId = launchForm.templateId;
+          const contractFields = launchForm.contractFields;
+          setAttributeValueMap(contractFields);
           const templateFieldDetails = await fetchTemplateFields(templateId);
-          console.log('template field response ', templateFieldDetails);
           setTemplateFields(templateFieldDetails);
         } catch (error) {
-          console.error('Error fetching template fields:', error);
+          console.log('Error in getting launch form', error);
         }
       };
-      getTemplateFields();
+
+      getLaunchForm();
 
       const getCounterparties = async () => {
         try {
@@ -140,50 +153,11 @@ export const CreateContract = () => {
           console.log('error in fetching counter parties', error);
         }
       };
-
-      try {
-        // Fetch record details
-        const recordDetails = await fetchRecordDetails(recordId);
-        console.log('recordDetails are ---->', recordDetails);
-
-        // Fetch mapping configuration
-        const fieldMappingConfiguration = await fetchMappingConfiguration(templateId);
-        console.log('fieldMappingConfig are ---->', fieldMappingConfiguration);
-
-        // Create key-value mapping
-        const attributeValueMaps = getTemplateAttributesValues(
-          recordDetails,
-          fieldMappingConfiguration
-        );
-        console.log('Attribute values map', attributeValueMap);
-        setAttributeValueMap(attributeValueMaps);
-      } catch (error) {
-        console.log('Error:', error);
-      }
     };
 
     // Call the fetchData function
     fetchData();
   }, []);
-
-  function getTemplateAttributesValues(recordDetails, fieldMappingConfiguration) {
-    const attributeValueMap = {};
-
-    // Iterate through each field mapping configuration
-    fieldMappingConfiguration.forEach((mapping) => {
-      // Extract necessary information from the mapping
-      const templateAttributeId = mapping.templateAttributeId;
-      const externalSystemAttributeName = mapping.externalSystemAttributeName;
-
-      // Find the value in recordDetails corresponding to externalSystemAttributeName
-      const value = recordDetails[externalSystemAttributeName];
-
-      // Map the templateAttributeId to the value
-      attributeValueMap[templateAttributeId] = value;
-    });
-
-    return attributeValueMap;
-  }
 
   //ye function call hoga on submit
   const onSubmit = async (data) => {

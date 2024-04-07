@@ -7,6 +7,7 @@ import { useSelector } from 'react-redux';
 import RenderCounterPartyInfo from './RenderCounterPartyIndividualInfo';
 import colorArray from 'src/utils/colorArray';
 import useClearFieldErrors from './useClearFieldErrors';
+import axios from 'axios';
 
 function RenderCounterPartyIndividualField({
   otherPartyMode,
@@ -53,9 +54,28 @@ function RenderCounterPartyIndividualField({
   useClearFieldErrors(fieldDetails);
 
   const fetchCounterparties = async () => {
-    const cpartiesData = await axiosInstance.get(
-      '/thirdPartyUsers/all/counterparties?type=IndependentIndividual'
-    );
+    // const cpartiesData = await axiosInstance.get(
+    //   '/thirdPartyUsers/all/counterparties?type=IndependentIndividual'
+    // );
+
+    let config = {
+      method: 'get',
+      maxBodyLength: Infinity,
+      url: 'https://cmt-backend-playground.intellosync.com/api/v1/thirdPartyUsers/all/counterparties?type=IndependentIndividual',
+      headers: {
+        Authorization:
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWU3ZjQ5NzI5Y2FhYjdlNGM4OGMyNGEiLCJmdWxsTmFtZSI6IlNlamFsIEdveWFsIiwiZW1haWwiOiJzZWphbC5nb3lhbEBpbnRlbGxvc3luYy5jb20iLCJvcmdJZCI6IjY1ZTdlNWY3MmU3Y2QzNGMzY2EyNTk2NCIsInJvbGUiOiJhZG1pbiIsImVkaXRvckFjY2VzcyI6IndyaXRlciIsImVudmlyb25tZW50IjoicGxheWdyb3VuZCIsImlhdCI6MTcxMjUxOTAyOSwiZXhwIjoxNzEyNjA1NDI5fQ.k9HGq5EBDA5ZfP4B7SV2aXS7nx0Zi0WxsAPZwPa2IwQ',
+      },
+    };
+
+    try {
+      const cpartiesData = await axios.request(config);
+      console.log('get counterparties ', cpartiesData.data);
+      // return response.data;
+    } catch (error) {
+      console.log(error);
+      throw new Error('Failed to fetch counterparties');
+    }
 
     setCounterparties(
       cpartiesData.data.map((res) => {
